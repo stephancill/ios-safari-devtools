@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DevTools Test</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        background: #1a1a1a;
+        color: #e0e0e0;
+        padding: 20px;
+      }
+      button {
+        margin: 4px;
+        padding: 8px 12px;
+        cursor: pointer;
+      }
+      section {
+        margin: 20px 0;
+      }
+      h2 {
+        margin-bottom: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>DevTools Extension Test</h1>
+
+    <section>
+      <h2>Console</h2>
+      <button id="log">console.log</button>
+      <button id="warn">console.warn</button>
+      <button id="error">console.error</button>
+      <button id="info">console.info</button>
+      <button id="obj">Log Object</button>
+    </section>
+
+    <section>
+      <h2>Errors</h2>
+      <button id="throw">Throw Error</button>
+      <button id="reject">Unhandled Rejection</button>
+    </section>
+
+    <section>
+      <h2>Network</h2>
+      <button id="fetch-ok">Fetch (200)</button>
+      <button id="fetch-404">Fetch (404)</button>
+      <button id="fetch-fail">Fetch (fail)</button>
+      <button id="xhr">XHR Request</button>
+    </section>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

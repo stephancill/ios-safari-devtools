@@ -1,0 +1,19 @@
+# Built web files
+devtools Extension/Resources/popup.html
+devtools Extension/Resources/popup.js
+devtools Extension/Resources/popup.css
+devtools Extension/Resources/content.js
+devtools Extension/Resources/inject.js
+
+# Dependencies
+node_modules/
+
+# Xcode
+*.xcuserstate
+xcuserdata/
+DerivedData/
+*.xcworkspace/xcuserdata/
+
+# Test app
+test-app/node_modules/
+
