@@ -81,7 +81,7 @@ export function Network({ requests }: NetworkProps) {
           {selected.requestBody && (
             <div>
               <div className="text-gray-500 mb-1">Request Body</div>
-              <pre className="whitespace-pre-wrap break-all bg-gray-900 p-2 rounded">
+              <pre className="whitespace-pre-wrap break-all">
                 {formatBody(selected.requestBody)}
               </pre>
             </div>
@@ -103,7 +103,7 @@ export function Network({ requests }: NetworkProps) {
           {selected.responseBody && (
             <div>
               <div className="text-gray-500 mb-1">Response Body</div>
-              <pre className="whitespace-pre-wrap break-all bg-gray-900 p-2 rounded">
+              <pre className="whitespace-pre-wrap break-all">
                 {formatBody(selected.responseBody)}
               </pre>
             </div>
