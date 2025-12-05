@@ -1,6 +1,12 @@
 // DevTools Page Injector
 // Runs in the actual page context to intercept console, errors, and network
 
+// Prevent multiple injections
+if ((window as unknown as { __DEVTOOLS_INJECTED__?: boolean }).__DEVTOOLS_INJECTED__) {
+  throw new Error("DevTools already injected");
+}
+(window as unknown as { __DEVTOOLS_INJECTED__?: boolean }).__DEVTOOLS_INJECTED__ = true;
+
 const generateId = () => Math.random().toString(36).substring(2, 15);
 
 // Intercept console methods

@@ -65,7 +65,7 @@ function App() {
   }
 
   return (
-    <div className="w-80 h-96 flex flex-col text-sm">
+    <div className="w-full h-screen flex flex-col text-sm">
       <div className="flex border-b border-gray-700">
         <button
           onClick={() => setTab('console')}

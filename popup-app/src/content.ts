@@ -1,6 +1,12 @@
 // DevTools Content Script
 // Runs in isolated content script context, bridges page and extension
 
+// Prevent multiple injections
+if ((window as unknown as { __DEVTOOLS_CONTENT_INJECTED__?: boolean }).__DEVTOOLS_CONTENT_INJECTED__) {
+  throw new Error("DevTools content script already injected");
+}
+(window as unknown as { __DEVTOOLS_CONTENT_INJECTED__?: boolean }).__DEVTOOLS_CONTENT_INJECTED__ = true;
+
 interface LogMessage {
   id: string;
   type: "log" | "warn" | "error" | "info";
@@ -66,7 +72,9 @@ browser.runtime.onMessage.addListener((msg: unknown) => {
     execScript.textContent = `
       try {
         const result = eval(${JSON.stringify(message.code)});
-        console.log(result);
+        if (result !== undefined) {
+          console.log(result);
+        }
       } catch (error) {
         console.error(error.message);
       }

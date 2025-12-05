@@ -1,6 +1,8 @@
 @import "tailwindcss";
 
-body {
+html, body, #root {
   margin: 0;
+  height: 100%;
+  width: 100%;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
