@@ -352,7 +352,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -euo pipefail\nexport PATH=\"$HOME/.local/share/pnpm:/opt/homebrew/bin:/usr/local/bin:$PATH\"\n\ncd \"$SRCROOT/popup-app\"\npnpm install --frozen-lockfile\npnpm run build\n";
+			shellScript = "set -euo pipefail\n\n# Add common paths where pnpm/node might be installed\nexport PATH=\"$HOME/.local/share/pnpm:/opt/homebrew/bin:/usr/local/bin:$PATH\"\n\n# For Xcode Cloud: add npm global bin path\nif command -v npm &> /dev/null; then\n    export PATH=\"$(npm config get prefix)/bin:$PATH\"\nfi\n\ncd \"$SRCROOT/popup-app\"\npnpm install --frozen-lockfile\npnpm run build\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

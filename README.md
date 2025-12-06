@@ -9,6 +9,12 @@ A Safari extension for iOS that provides developer console functionality similar
 - **Error Tracking**: Capture runtime errors and unhandled promise rejections
 - **Network Monitoring**: Inspect fetch and XMLHttpRequest calls with request/response details
 
+## Tech Stack
+
+- **Popup UI**: Vite + React + TypeScript + Tailwind CSS
+- **Icons**: Lucide React
+- **Linting/Formatting**: Biome
+
 ## Project Structure
 
 ```
@@ -16,6 +22,7 @@ devtools/
 ├── popup-app/                    # Vite + React + TypeScript popup UI
 │   ├── src/
 │   │   ├── App.tsx              # Main app with tab navigation
+│   │   ├── index.css            # Tailwind + custom DevTools styles
 │   │   ├── components/
 │   │   │   ├── Console.tsx      # Console logs + JS execution
 │   │   │   └── Network.tsx      # Network requests viewer
