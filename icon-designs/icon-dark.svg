@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background - DevTools dark -->
+  <rect width="512" height="512" rx="100" fill="#1f1f1f"/>
+  <!-- Stack of panels/layers -->
+  <rect x="100" y="280" width="312" height="160" rx="16" fill="#3c3c3c"/>
+  <rect x="80" y="200" width="352" height="160" rx="16" fill="#282828"/>
+  <rect x="60" y="120" width="392" height="160" rx="16" fill="#3c3c3c"/>
+  <!-- Code lines on top panel - blue accent -->
+  <rect x="90" y="150" width="160" height="16" rx="4" fill="#89b4fa"/>
+  <rect x="90" y="180" width="280" height="16" rx="4" fill="#89b4fa" opacity="0.5"/>
+  <rect x="90" y="210" width="200" height="16" rx="4" fill="#89b4fa"/>
+  <rect x="90" y="240" width="240" height="16" rx="4" fill="#89b4fa" opacity="0.5"/>
+</svg>
