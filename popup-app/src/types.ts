@@ -1,6 +1,6 @@
 export interface LogEntry {
   id: string
-  type: 'log' | 'warn' | 'error' | 'info'
+  type: "log" | "warn" | "error" | "info"
   args: unknown[]
   timestamp: number
 }
@@ -36,7 +36,10 @@ declare global {
       getURL: (path: string) => string
     }
     tabs: {
-      query: (options: { active: boolean; currentWindow: boolean }) => Promise<{ id?: number }[]>
+      query: (options: {
+        active: boolean
+        currentWindow: boolean
+      }) => Promise<{ id?: number }[]>
       sendMessage: (tabId: number, message: unknown) => Promise<unknown>
     }
   }

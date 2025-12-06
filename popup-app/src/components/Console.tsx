@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
-import type { LogEntry } from '../types'
+import { useEffect, useRef, useState } from "react"
+import type { LogEntry } from "../types"
 
 interface ConsoleProps {
   logs: LogEntry[]
@@ -11,17 +11,17 @@ const sanitizeCode = (code: string): string => {
   return code
     .replace(/[\u201C\u201D\u201E\u201F\u2033\u2036]/g, '"') // smart double quotes
     .replace(/[\u2018\u2019\u201A\u201B\u2032\u2035]/g, "'") // smart single quotes
-    .replace(/\u2026/g, '...') // ellipsis
-    .replace(/[\u2013\u2014]/g, '-') // en-dash, em-dash
+    .replace(/\u2026/g, "...") // ellipsis
+    .replace(/[\u2013\u2014]/g, "-") // en-dash, em-dash
 }
 
 export function Console({ logs, onExecute }: ConsoleProps) {
-  const [input, setInput] = useState('')
+  const [input, setInput] = useState("")
   const logsEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    logsEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [logs])
+    logsEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInput(sanitizeCode(e.target.value))
@@ -31,27 +31,27 @@ export function Console({ logs, onExecute }: ConsoleProps) {
     e.preventDefault()
     if (input.trim()) {
       onExecute(sanitizeCode(input))
-      setInput('')
+      setInput("")
     }
   }
 
-  const getLogColor = (type: LogEntry['type']) => {
+  const getLogColor = (type: LogEntry["type"]) => {
     switch (type) {
-      case 'error':
-        return 'text-red-500'
-      case 'warn':
-        return 'text-yellow-500'
-      case 'info':
-        return 'text-blue-500'
+      case "error":
+        return "text-red-500"
+      case "warn":
+        return "text-yellow-500"
+      case "info":
+        return "text-blue-500"
       default:
-        return ''
+        return ""
     }
   }
 
   const formatArg = (arg: unknown): string => {
-    if (arg === null) return 'null'
-    if (arg === undefined) return 'undefined'
-    if (typeof arg === 'object') {
+    if (arg === null) return "null"
+    if (arg === undefined) return "undefined"
+    if (typeof arg === "object") {
       try {
         return JSON.stringify(arg, null, 2)
       } catch {
@@ -73,7 +73,7 @@ export function Console({ logs, onExecute }: ConsoleProps) {
                 {new Date(log.timestamp).toLocaleTimeString()}
               </span>
               <span className="whitespace-pre-wrap">
-                {log.args.map(formatArg).join(' ')}
+                {log.args.map(formatArg).join(" ")}
               </span>
             </div>
           ))
@@ -101,4 +101,3 @@ export function Console({ logs, onExecute }: ConsoleProps) {
     </div>
   )
 }
-

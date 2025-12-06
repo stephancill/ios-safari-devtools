@@ -1,23 +1,23 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
-import { resolve } from 'path'
+import { resolve } from "node:path"
+import tailwindcss from "@tailwindcss/vite"
+import react from "@vitejs/plugin-react"
+import { defineConfig } from "vite"
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  base: './',
+  base: "./",
   build: {
-    outDir: resolve(__dirname, '../devtools Extension/Resources'),
+    outDir: resolve(__dirname, "../devtools Extension/Resources"),
     emptyOutDir: false,
     rollupOptions: {
-      input: resolve(__dirname, 'index.html'),
+      input: resolve(__dirname, "index.html"),
       output: {
-        entryFileNames: 'popup.js',
+        entryFileNames: "popup.js",
         assetFileNames: (assetInfo) => {
-          if (assetInfo.name?.endsWith('.css')) {
-            return 'popup.css'
+          if (assetInfo.name?.endsWith(".css")) {
+            return "popup.css"
           }
-          return 'assets/[name]-[hash][extname]'
+          return "assets/[name]-[hash][extname]"
         },
       },
     },

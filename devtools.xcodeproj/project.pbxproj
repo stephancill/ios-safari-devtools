@@ -414,7 +414,7 @@
 				DEVELOPMENT_TEAM = 6JKMV57Y77;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "devtools Extension/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "devtools Extension";
+				INFOPLIST_KEY_CFBundleDisplayName = devtools;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -445,7 +445,7 @@
 				DEVELOPMENT_TEAM = 6JKMV57Y77;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "devtools Extension/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "devtools Extension";
+				INFOPLIST_KEY_CFBundleDisplayName = devtools;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (

@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import type { NetworkEntry } from '../types'
+import { useState } from "react"
+import type { NetworkEntry } from "../types"
 
 interface NetworkProps {
   requests: NetworkEntry[]
@@ -9,15 +9,15 @@ export function Network({ requests }: NetworkProps) {
   const [selected, setSelected] = useState<NetworkEntry | null>(null)
 
   const getStatusColor = (status?: number) => {
-    if (!status) return 'text-gray-500'
-    if (status >= 200 && status < 300) return 'text-green-500'
-    if (status >= 300 && status < 400) return 'text-blue-500'
-    if (status >= 400) return 'text-red-500'
-    return ''
+    if (!status) return "text-gray-500"
+    if (status >= 200 && status < 300) return "text-green-500"
+    if (status >= 300 && status < 400) return "text-blue-500"
+    if (status >= 400) return "text-red-500"
+    return ""
   }
 
   const formatDuration = (entry: NetworkEntry) => {
-    if (!entry.endTime) return '...'
+    if (!entry.endTime) return "..."
     return `${entry.endTime - entry.startTime}ms`
   }
 
@@ -35,7 +35,11 @@ export function Network({ requests }: NetworkProps) {
     return (
       <div className="h-full overflow-auto text-xs">
         <div className="p-2 border-b border-gray-700">
-          <button onClick={() => setSelected(null)} className="text-blue-400">
+          <button
+            type="button"
+            onClick={() => setSelected(null)}
+            className="text-blue-400"
+          >
             ← Back
           </button>
         </div>
@@ -120,14 +124,15 @@ export function Network({ requests }: NetworkProps) {
       ) : (
         <div className="space-y-1">
           {requests.map((req) => (
-            <div
+            <button
+              type="button"
               key={req.id}
               onClick={() => setSelected(req)}
-              className="flex gap-2 cursor-pointer hover:bg-gray-800 p-1 -m-1 rounded"
+              className="flex gap-2 cursor-pointer hover:bg-gray-800 p-1 -m-1 rounded w-full text-left"
             >
               <span className="w-12 text-gray-500">{req.method}</span>
               <span className={`w-10 ${getStatusColor(req.status)}`}>
-                {req.status ?? '...'}
+                {req.status ?? "..."}
               </span>
               <span className="w-14 text-gray-500">{formatDuration(req)}</span>
               <span className="flex-1 truncate">
@@ -137,7 +142,7 @@ export function Network({ requests }: NetworkProps) {
                   req.url
                 )}
               </span>
-            </div>
+            </button>
           ))}
         </div>
       )}

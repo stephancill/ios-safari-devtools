@@ -1,5 +1,5 @@
-import { defineConfig } from "vite";
-import { resolve } from "path";
+import { resolve } from "node:path"
+import { defineConfig } from "vite"
 
 // Build content script
 export default defineConfig({
@@ -21,4 +21,4 @@ export default defineConfig({
     minify: false,
     target: "es2020",
   },
-});
+})
