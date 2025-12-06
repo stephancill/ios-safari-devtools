@@ -6,6 +6,38 @@
 import SwiftUI
 import SwiftData
 
+// MARK: - Custom Search Bar (workaround for .searchable() crash in NavigationStack > TabView)
+
+struct SearchBar: View {
+    @Binding var text: String
+    let prompt: String
+    
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "magnifyingglass")
+                .foregroundStyle(.secondary)
+            
+            TextField(prompt, text: $text)
+                .textFieldStyle(.plain)
+            
+            if !text.isEmpty {
+                Button {
+                    text = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(8)
+        .background(Color(.systemGray6))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+    }
+}
+
 struct TabDetailView: View {
     let tabId: Int
     let tabURL: String
@@ -56,7 +88,11 @@ struct ConsoleView: View {
     }
     
     var body: some View {
-        Group {
+        VStack(spacing: 0) {
+            if !logs.isEmpty {
+                SearchBar(text: $searchText, prompt: "Filter logs")
+            }
+            
             if logs.isEmpty {
                 ContentUnavailableView(
                     "No Console Logs",
@@ -89,7 +125,6 @@ struct ConsoleView: View {
                 }
             }
         }
-        .searchable(text: $searchText, prompt: "Filter logs")
     }
 }
 
@@ -161,7 +196,11 @@ struct NetworkListView: View {
     }
     
     var body: some View {
-        Group {
+        VStack(spacing: 0) {
+            if !requests.isEmpty {
+                SearchBar(text: $searchText, prompt: "Filter by URL")
+            }
+            
             if requests.isEmpty {
                 ContentUnavailableView(
                     "No Network Requests",
@@ -197,7 +236,6 @@ struct NetworkListView: View {
                 }
             }
         }
-        .searchable(text: $searchText, prompt: "Filter by URL")
         .sheet(item: $selectedRequest) { request in
             NetworkDetailView(request: request)
         }
