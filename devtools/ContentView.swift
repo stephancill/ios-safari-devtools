@@ -7,51 +7,11 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
-    @Query(sort: \DebugLog.timestamp, order: .reverse) var logs: [DebugLog]
-    @Query(sort: \NetworkLog.startTime, order: .reverse) var networkLogs: [NetworkLog]
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
     @State private var showSettings = false
-    
-    var activeTabs: [TabInfo] {
-        var tabs: [String: TabInfo] = [:]
-        
-        // Gather unique tabs from logs
-        for log in logs {
-            let key = "\(log.tabId)"
-            if tabs[key] == nil {
-                tabs[key] = TabInfo(
-                    tabId: log.tabId,
-                    tabURL: log.tabURL,
-                    logCount: 0,
-                    networkCount: 0,
-                    lastActivity: log.timestamp
-                )
-            }
-            tabs[key]?.logCount += 1
-            if log.timestamp > tabs[key]!.lastActivity {
-                tabs[key]?.lastActivity = log.timestamp
-            }
-        }
-        
-        // Gather unique tabs from network logs
-        for log in networkLogs {
-            let key = "\(log.tabId)"
-            if tabs[key] == nil {
-                tabs[key] = TabInfo(
-                    tabId: log.tabId,
-                    tabURL: log.tabURL,
-                    logCount: 0,
-                    networkCount: 0,
-                    lastActivity: log.startTime
-                )
-            }
-            tabs[key]?.networkCount += 1
-            if log.startTime > tabs[key]!.lastActivity {
-                tabs[key]?.lastActivity = log.startTime
-            }
-        }
-        
-        return Array(tabs.values).sorted { $0.lastActivity > $1.lastActivity }
-    }
+    @State private var activeTabs: [TabInfo] = []
+    @State private var isLoading = true
     
     var body: some View {
         NavigationStack {
@@ -62,7 +22,9 @@ struct ContentView: View {
             }
             .listStyle(.insetGrouped)
             .overlay {
-                if activeTabs.isEmpty {
+                if isLoading {
+                    ProgressView()
+                } else if activeTabs.isEmpty {
                     ContentUnavailableView(
                         "No Active Tabs",
                         systemImage: "safari",
@@ -86,6 +48,104 @@ struct ContentView: View {
             .sheet(isPresented: $showSettings) {
                 SettingsView()
             }
+            .task {
+                await loadTabs()
+            }
+            .refreshable {
+                await loadTabs()
+            }
+            .onChange(of: scenePhase) { _, newPhase in
+                if newPhase == .active {
+                    Task {
+                        await loadTabs()
+                    }
+                }
+            }
+        }
+    }
+    
+    private func loadTabs() async {
+        // Don't load when backgrounded
+        guard scenePhase == .active || activeTabs.isEmpty else { return }
+        
+        guard !Task.isCancelled else { return }
+        await Task.yield()
+        guard !Task.isCancelled else { return }
+        
+        // Fetch distinct tab info - limit to recent logs to avoid loading entire database
+        var tabs: [String: TabInfo] = [:]
+        
+        // Limit queries to prevent loading too much data
+        var debugDescriptor = FetchDescriptor<DebugLog>(
+            sortBy: [SortDescriptor(\.timestamp, order: .reverse)]
+        )
+        debugDescriptor.fetchLimit = 1000
+        
+        var networkDescriptor = FetchDescriptor<NetworkLog>(
+            sortBy: [SortDescriptor(\.startTime, order: .reverse)]
+        )
+        networkDescriptor.fetchLimit = 500
+        
+        do {
+            let debugLogs = try modelContext.fetch(debugDescriptor)
+            
+            guard !Task.isCancelled else { return }
+            await Task.yield()
+            guard !Task.isCancelled else { return }
+            
+            let networkLogs = try modelContext.fetch(networkDescriptor)
+            
+            guard !Task.isCancelled else { return }
+            
+            // Process debug logs
+            for log in debugLogs {
+                let key = "\(log.tabId)"
+                if var existing = tabs[key] {
+                    existing.logCount += 1
+                    if log.timestamp > existing.lastActivity {
+                        existing.lastActivity = log.timestamp
+                    }
+                    tabs[key] = existing
+                } else {
+                    tabs[key] = TabInfo(
+                        tabId: log.tabId,
+                        tabURL: log.tabURL,
+                        logCount: 1,
+                        networkCount: 0,
+                        lastActivity: log.timestamp
+                    )
+                }
+            }
+            
+            guard !Task.isCancelled else { return }
+            
+            // Process network logs
+            for log in networkLogs {
+                let key = "\(log.tabId)"
+                if var existing = tabs[key] {
+                    existing.networkCount += 1
+                    if log.startTime > existing.lastActivity {
+                        existing.lastActivity = log.startTime
+                    }
+                    tabs[key] = existing
+                } else {
+                    tabs[key] = TabInfo(
+                        tabId: log.tabId,
+                        tabURL: log.tabURL,
+                        logCount: 0,
+                        networkCount: 1,
+                        lastActivity: log.startTime
+                    )
+                }
+            }
+            
+            guard !Task.isCancelled else { return }
+            
+            activeTabs = Array(tabs.values).sorted { $0.lastActivity > $1.lastActivity }
+            isLoading = false
+        } catch {
+            activeTabs = []
+            isLoading = false
         }
     }
 }

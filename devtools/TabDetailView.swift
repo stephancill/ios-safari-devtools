@@ -39,14 +39,11 @@ struct TabDetailView: View {
 struct ConsoleView: View {
     let tabId: Int
     
-    @Query var logs: [DebugLog]
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var logs: [DebugLog] = []
     @State private var searchText = ""
-    
-    init(tabId: Int) {
-        self.tabId = tabId
-        let predicate = #Predicate<DebugLog> { $0.tabId == tabId }
-        _logs = Query(filter: predicate, sort: \DebugLog.timestamp, order: .forward)
-    }
+    @State private var isLoading = false
     
     var filteredLogs: [DebugLog] {
         if searchText.isEmpty {
@@ -57,7 +54,9 @@ struct ConsoleView: View {
     
     var body: some View {
         Group {
-            if logs.isEmpty {
+            if isLoading && logs.isEmpty {
+                ProgressView("Loading...")
+            } else if logs.isEmpty {
                 ContentUnavailableView(
                     "No Console Logs",
                     systemImage: "terminal",
@@ -66,30 +65,58 @@ struct ConsoleView: View {
             } else if filteredLogs.isEmpty {
                 ContentUnavailableView.search(text: searchText)
             } else {
-                ScrollViewReader { proxy in
-                    List(filteredLogs) { log in
-                        LogRow(log: log)
-                            .listRowInsets(EdgeInsets())
-                            .listRowBackground(log.rowBackgroundColor)
-                            .id(log.id)
-                    }
-                    .listStyle(.plain)
-                    .onChange(of: filteredLogs.count) {
-                        if let lastLog = filteredLogs.last {
-                            withAnimation {
-                                proxy.scrollTo(lastLog.id, anchor: .bottom)
-                            }
-                        }
-                    }
-                    .onAppear {
-                        if let lastLog = filteredLogs.last {
-                            proxy.scrollTo(lastLog.id, anchor: .bottom)
-                        }
-                    }
+                List(filteredLogs) { log in
+                    LogRow(log: log)
+                        .listRowInsets(EdgeInsets())
+                        .listRowBackground(log.rowBackgroundColor)
+                        .id(log.id)
                 }
+                .listStyle(.plain)
+                .defaultScrollAnchor(.bottom)
             }
         }
         .searchable(text: $searchText, prompt: "Filter logs")
+        .task(id: tabId) {
+            await fetchLogs()
+        }
+        .refreshable {
+            await fetchLogs()
+        }
+    }
+    
+    private func fetchLogs() async {
+        // Don't fetch if app is not active to avoid watchdog timeout
+        guard scenePhase == .active else { return }
+        
+        isLoading = true
+        defer { isLoading = false }
+        
+        // Check for cancellation before starting
+        guard !Task.isCancelled else { return }
+        
+        // Yield to allow UI to update and check for cancellation
+        await Task.yield()
+        guard !Task.isCancelled else { return }
+        
+        let targetTabId = tabId
+        var descriptor = FetchDescriptor<DebugLog>(
+            predicate: #Predicate { $0.tabId == targetTabId },
+            sortBy: [SortDescriptor(\.timestamp, order: .reverse)]
+        )
+        // Reduced limit to prevent watchdog timeout
+        descriptor.fetchLimit = 200
+        
+        do {
+            let fetchedLogs = try modelContext.fetch(descriptor)
+            
+            // Check for cancellation after fetch
+            guard !Task.isCancelled else { return }
+            
+            // Reverse to show oldest first, but we fetched newest first with limit
+            logs = fetchedLogs.reversed()
+        } catch {
+            logs = []
+        }
     }
 }
 
@@ -143,22 +170,8 @@ extension DebugLog {
 struct NetworkListView: View {
     let tabId: Int
     
-    @Query var requests: [NetworkLog]
-    @State private var searchText = ""
-    @State private var selectedRequest: NetworkLog?
-    
-    init(tabId: Int) {
-        self.tabId = tabId
-        let predicate = #Predicate<NetworkLog> { $0.tabId == tabId }
-        _requests = Query(filter: predicate, sort: \NetworkLog.startTime, order: .forward)
-    }
-    
-    var filteredRequests: [NetworkLog] {
-        if searchText.isEmpty {
-            return requests
-        }
-        return requests.filter { $0.url.localizedCaseInsensitiveContains(searchText) }
-    }
+    @Environment(\.modelContext) private var modelContext
+    @State private var requests: [NetworkLog] = []
     
     var body: some View {
         Group {
@@ -168,38 +181,27 @@ struct NetworkListView: View {
                     systemImage: "network",
                     description: Text("Network requests will appear here.")
                 )
-            } else if filteredRequests.isEmpty {
-                ContentUnavailableView.search(text: searchText)
             } else {
-                ScrollViewReader { proxy in
-                    List(filteredRequests) { request in
-                        Button {
-                            selectedRequest = request
-                        } label: {
-                            NetworkRow(request: request)
-                        }
-                        .buttonStyle(.plain)
-                        .id(request.id)
-                    }
-                    .listStyle(.plain)
-                    .onChange(of: filteredRequests.count) {
-                        if let lastRequest = filteredRequests.last {
-                            withAnimation {
-                                proxy.scrollTo(lastRequest.id, anchor: .bottom)
-                            }
-                        }
-                    }
-                    .onAppear {
-                        if let lastRequest = filteredRequests.last {
-                            proxy.scrollTo(lastRequest.id, anchor: .bottom)
-                        }
-                    }
-                }
+                Text("Has \(requests.count) requests")
             }
         }
-        .searchable(text: $searchText, prompt: "Filter by URL")
-        .sheet(item: $selectedRequest) { request in
-            NetworkDetailView(request: request)
+        .onAppear {
+            fetchRequests()
+        }
+    }
+    
+    private func fetchRequests() {
+        let targetTabId = tabId
+        var descriptor = FetchDescriptor<NetworkLog>(
+            predicate: #Predicate { $0.tabId == targetTabId },
+            sortBy: [SortDescriptor(\.startTime, order: .reverse)]
+        )
+        descriptor.fetchLimit = 50
+        
+        do {
+            requests = try modelContext.fetch(descriptor)
+        } catch {
+            requests = []
         }
     }
 }
