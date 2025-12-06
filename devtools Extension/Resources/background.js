@@ -8,7 +8,20 @@ const state = {
 
 const MAX_ENTRIES = 500;
 
+// Send message to native app handler
+function sendToNative(message) {
+  browser.runtime
+    .sendNativeMessage("application.id", message)
+    .catch((error) => {
+      // Native messaging may fail if app is not running - that's okay
+      console.debug("Native message failed:", error);
+    });
+}
+
 browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  const tabId = sender.tab?.id;
+  const tabURL = sender.tab?.url;
+
   switch (message.type) {
     case "CONSOLE_LOG":
       if (message.log) {
@@ -23,6 +36,16 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
             log: message.log,
           })
           .catch(() => {});
+
+        // Send to native app for persistent storage
+        if (tabId !== undefined && tabURL) {
+          sendToNative({
+            type: "STORE_LOG",
+            log: message.log,
+            tabId: tabId,
+            tabURL: tabURL,
+          });
+        }
       }
       break;
 
@@ -54,6 +77,16 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 : message.request,
           })
           .catch(() => {});
+
+        // Send to native app for persistent storage
+        if (tabId !== undefined && tabURL) {
+          sendToNative({
+            type: "STORE_NETWORK",
+            request: message.request,
+            tabId: tabId,
+            tabURL: tabURL,
+          });
+        }
       }
       break;
 
@@ -72,3 +105,29 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
       break;
   }
 });
+
+// Clean up when tab closes
+browser.tabs.onRemoved.addListener((tabId) => {
+  sendToNative({
+    type: "TAB_CLOSED",
+    tabId: tabId,
+  });
+});
+
+// Periodic sync: clean up orphaned tabs (e.g., extension was disabled when tabs closed)
+async function syncActiveTabs() {
+  try {
+    const tabs = await browser.tabs.query({});
+    const activeTabIds = tabs.map((t) => t.id).filter((id) => id !== undefined);
+    sendToNative({
+      type: "SYNC_ACTIVE_TABS",
+      activeTabIds: activeTabIds,
+    });
+  } catch (error) {
+    console.debug("Failed to sync active tabs:", error);
+  }
+}
+
+// Run sync on extension startup and periodically
+syncActiveTabs();
+setInterval(syncActiveTabs, 5 * 60 * 1000); // Every 5 minutes

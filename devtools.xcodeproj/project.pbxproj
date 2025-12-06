@@ -103,6 +103,11 @@
 			path = "devtools Extension";
 			sourceTree = "<group>";
 		};
+		D4C763302EE3000000B6629D /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Shared;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -140,6 +145,7 @@
 		D4C762B82EE2E42200B6629D = {
 			isa = PBXGroup;
 			children = (
+				D4C763302EE3000000B6629D /* Shared */,
 				D4C762C32EE2E42200B6629D /* devtools */,
 				D4C762E12EE2E42400B6629D /* devtoolsTests */,
 				D4C762EB2EE2E42400B6629D /* devtoolsUITests */,
@@ -178,6 +184,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				D4C762C32EE2E42200B6629D /* devtools */,
+				D4C763302EE3000000B6629D /* Shared */,
 			);
 			name = devtools;
 			packageProductDependencies = (
@@ -247,6 +254,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				D4C762F82EE2E42400B6629D /* devtools Extension */,
+				D4C763302EE3000000B6629D /* Shared */,
 			);
 			name = "devtools Extension";
 			packageProductDependencies = (
@@ -409,6 +417,7 @@
 		D4C763102EE2E42400B6629D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "devtools Extension/devtools Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6JKMV57Y77;
@@ -416,7 +425,7 @@
 				INFOPLIST_FILE = "devtools Extension/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "browser devtools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -440,6 +449,7 @@
 		D4C763112EE2E42400B6629D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "devtools Extension/devtools Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6JKMV57Y77;
@@ -447,7 +457,7 @@
 				INFOPLIST_FILE = "devtools Extension/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "browser devtools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -473,6 +483,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = devtools/devtools.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6JKMV57Y77;
@@ -481,10 +492,9 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "browser devtools";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -493,8 +503,6 @@
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
-					"-framework",
-					WebKit,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = co.za.stephancill.devtools;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -509,6 +517,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = devtools/devtools.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6JKMV57Y77;
@@ -517,10 +526,9 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "browser devtools";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -529,8 +537,6 @@
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
-					"-framework",
-					WebKit,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = co.za.stephancill.devtools;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -669,7 +675,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6JKMV57Y77;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = co.za.stephancill.devtoolsTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -688,7 +694,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6JKMV57Y77;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = co.za.stephancill.devtoolsTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";

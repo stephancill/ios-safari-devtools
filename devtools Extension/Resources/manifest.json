@@ -36,7 +36,8 @@
     "permissions": [
         "activeTab",
         "scripting",
-        "tabs"
+        "tabs",
+        "nativeMessaging"
     ],
     "web_accessible_resources": [
         {
