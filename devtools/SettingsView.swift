@@ -116,14 +116,14 @@ struct SetupInstructionsView: View {
                         .frame(width: 100, height: 100)
                     
                     VStack(spacing: 16) {
-                        Text("Enable DevTools Extension")
+                        Text("Enable devtools Extension")
                             .font(.title2)
                             .fontWeight(.semibold)
                         
                         VStack(alignment: .leading, spacing: 12) {
                             InstructionRow(number: 1, text: "Open the Settings app")
                             InstructionRow(number: 2, text: "Go to Apps → Safari → Extensions")
-                            InstructionRow(number: 3, text: "Tap on DevTools")
+                            InstructionRow(number: 3, text: "Tap on devtools")
                             InstructionRow(number: 4, text: "Enable the extension")
                             InstructionRow(number: 5, text: "Allow for All Websites or specific sites")
                         }

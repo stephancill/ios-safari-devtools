@@ -45,7 +45,7 @@ struct ConsoleView: View {
     init(tabId: Int) {
         self.tabId = tabId
         let predicate = #Predicate<DebugLog> { $0.tabId == tabId }
-        _logs = Query(filter: predicate, sort: \DebugLog.timestamp, order: .reverse)
+        _logs = Query(filter: predicate, sort: \DebugLog.timestamp, order: .forward)
     }
     
     var filteredLogs: [DebugLog] {
@@ -66,10 +66,27 @@ struct ConsoleView: View {
             } else if filteredLogs.isEmpty {
                 ContentUnavailableView.search(text: searchText)
             } else {
-                List(filteredLogs) { log in
-                    LogRow(log: log)
+                ScrollViewReader { proxy in
+                    List(filteredLogs) { log in
+                        LogRow(log: log)
+                            .listRowInsets(EdgeInsets())
+                            .listRowBackground(log.rowBackgroundColor)
+                            .id(log.id)
+                    }
+                    .listStyle(.plain)
+                    .onChange(of: filteredLogs.count) {
+                        if let lastLog = filteredLogs.last {
+                            withAnimation {
+                                proxy.scrollTo(lastLog.id, anchor: .bottom)
+                            }
+                        }
+                    }
+                    .onAppear {
+                        if let lastLog = filteredLogs.last {
+                            proxy.scrollTo(lastLog.id, anchor: .bottom)
+                        }
+                    }
                 }
-                .listStyle(.plain)
             }
         }
         .searchable(text: $searchText, prompt: "Filter logs")
@@ -79,20 +96,7 @@ struct ConsoleView: View {
 struct LogRow: View {
     let log: DebugLog
     
-    private var iconName: String {
-        switch log.type {
-        case "error":
-            return "xmark.circle.fill"
-        case "warn":
-            return "exclamationmark.triangle.fill"
-        case "info":
-            return "info.circle.fill"
-        default:
-            return "circle.fill"
-        }
-    }
-    
-    private var iconColor: Color {
+    private var textColor: Color {
         switch log.type {
         case "error":
             return .red
@@ -101,27 +105,36 @@ struct LogRow: View {
         case "info":
             return .blue
         default:
-            return .secondary
+            return .primary
         }
     }
     
     var body: some View {
-        HStack(alignment: .top, spacing: 8) {
-            Image(systemName: iconName)
-                .foregroundStyle(iconColor)
-                .font(.caption)
+        HStack(alignment: .center, spacing: 8) {
+            Text(log.timestamp, format: .dateTime.hour().minute().second())
+                .font(.system(.caption, design: .monospaced))
+                .foregroundStyle(.secondary)
             
-            VStack(alignment: .leading, spacing: 4) {
-                Text(log.args.joined(separator: " "))
-                    .font(.system(.body, design: .monospaced))
-                    .lineLimit(5)
-                
-                Text(log.timestamp, style: .time)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            }
+            Text(log.args.joined(separator: " "))
+                .font(.system(.callout, design: .monospaced))
+                .foregroundStyle(textColor)
         }
-        .padding(.vertical, 2)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.vertical, 8)
+        .padding(.horizontal, 16)
+    }
+}
+
+extension DebugLog {
+    var rowBackgroundColor: Color {
+        switch type {
+        case "error":
+            return .red.opacity(0.1)
+        case "warn":
+            return .orange.opacity(0.1)
+        default:
+            return .clear
+        }
     }
 }
 
@@ -137,7 +150,7 @@ struct NetworkListView: View {
     init(tabId: Int) {
         self.tabId = tabId
         let predicate = #Predicate<NetworkLog> { $0.tabId == tabId }
-        _requests = Query(filter: predicate, sort: \NetworkLog.startTime, order: .reverse)
+        _requests = Query(filter: predicate, sort: \NetworkLog.startTime, order: .forward)
     }
     
     var filteredRequests: [NetworkLog] {
@@ -158,15 +171,30 @@ struct NetworkListView: View {
             } else if filteredRequests.isEmpty {
                 ContentUnavailableView.search(text: searchText)
             } else {
-                List(filteredRequests) { request in
-                    Button {
-                        selectedRequest = request
-                    } label: {
-                        NetworkRow(request: request)
+                ScrollViewReader { proxy in
+                    List(filteredRequests) { request in
+                        Button {
+                            selectedRequest = request
+                        } label: {
+                            NetworkRow(request: request)
+                        }
+                        .buttonStyle(.plain)
+                        .id(request.id)
                     }
-                    .buttonStyle(.plain)
+                    .listStyle(.plain)
+                    .onChange(of: filteredRequests.count) {
+                        if let lastRequest = filteredRequests.last {
+                            withAnimation {
+                                proxy.scrollTo(lastRequest.id, anchor: .bottom)
+                            }
+                        }
+                    }
+                    .onAppear {
+                        if let lastRequest = filteredRequests.last {
+                            proxy.scrollTo(lastRequest.id, anchor: .bottom)
+                        }
+                    }
                 }
-                .listStyle(.plain)
             }
         }
         .searchable(text: $searchText, prompt: "Filter by URL")
@@ -244,7 +272,7 @@ struct NetworkRow: View {
             }
             
             Text(request.url)
-                .font(.system(.footnote, design: .monospaced))
+                .font(.footnote)
                 .lineLimit(2)
                 .foregroundStyle(.primary)
         }
@@ -305,10 +333,8 @@ struct NetworkDetailView: View {
                     }
                 }
                 
-                Section("Timing") {
-                    LabeledContent("Started", value: request.startTime, format: .dateTime)
-                    if let endTime = request.endTime {
-                        LabeledContent("Completed", value: endTime, format: .dateTime)
+                if let endTime = request.endTime {
+                    Section("Timing") {
                         let duration = endTime.timeIntervalSince(request.startTime) * 1000
                         LabeledContent("Duration", value: String(format: "%.0f ms", duration))
                     }

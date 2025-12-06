@@ -66,7 +66,7 @@ struct ContentView: View {
                     ContentUnavailableView(
                         "No Active Tabs",
                         systemImage: "safari",
-                        description: Text("Browse websites in Safari with the DevTools extension enabled to see debug logs here.")
+                        description: Text("Browse websites in Safari with the devtools extension enabled to see debug logs here.")
                     )
                 }
             }
