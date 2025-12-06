@@ -1,8 +1,411 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
 
 html, body, #root {
   margin: 0;
   height: 100%;
   width: 100%;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 12px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Chrome DevTools color scheme - always dark */
+:root {
+  --radius: 0;
+  
+  /* DevTools dark theme colors */
+  --devtools-bg: #1f1f1f;
+  --devtools-bg-elevated: #282828;
+  --devtools-bg-toolbar: #292929;
+  --devtools-border: #3c3c3c;
+  --devtools-text: #e8eaed;
+  --devtools-text-secondary: #9aa0a6;
+  --devtools-accent: #89b4fa;
+  --devtools-selection: #264f78;
+  
+  /* Console colors */
+  --devtools-error-bg: #290000;
+  --devtools-error-border: #ff0000;
+  --devtools-error-text: #ff8080;
+  --devtools-warn-bg: #332b00;
+  --devtools-warn-border: #aa8000;
+  --devtools-warn-text: #f5c076;
+  --devtools-info-text: #89b4fa;
+  --devtools-log-text: #e8eaed;
+  
+  /* Network colors */
+  --devtools-status-success: #81c995;
+  --devtools-status-redirect: #89b4fa;
+  --devtools-status-error: #f28b82;
+
+  /* Set root to dark theme by default */
+  --background: #1f1f1f;
+  --foreground: #e8eaed;
+  --card: #282828;
+  --card-foreground: #e8eaed;
+  --popover: #282828;
+  --popover-foreground: #e8eaed;
+  --primary: #89b4fa;
+  --primary-foreground: #1f1f1f;
+  --secondary: #3c3c3c;
+  --secondary-foreground: #e8eaed;
+  --muted: #3c3c3c;
+  --muted-foreground: #9aa0a6;
+  --accent: #264f78;
+  --accent-foreground: #e8eaed;
+  --destructive: #f28b82;
+  --border: #3c3c3c;
+  --input: #3c3c3c;
+  --ring: #89b4fa;
+}
+
+@theme inline {
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+.dark {
+  --background: #1f1f1f;
+  --foreground: #e8eaed;
+  --card: #282828;
+  --card-foreground: #e8eaed;
+  --popover: #282828;
+  --popover-foreground: #e8eaed;
+  --primary: #89b4fa;
+  --primary-foreground: #1f1f1f;
+  --secondary: #3c3c3c;
+  --secondary-foreground: #e8eaed;
+  --muted: #3c3c3c;
+  --muted-foreground: #9aa0a6;
+  --accent: #264f78;
+  --accent-foreground: #e8eaed;
+  --destructive: #f28b82;
+  --border: #3c3c3c;
+  --input: #3c3c3c;
+  --ring: #89b4fa;
+  --chart-1: #89b4fa;
+  --chart-2: #81c995;
+  --chart-3: #f5c076;
+  --chart-4: #c792ea;
+  --chart-5: #f28b82;
+  --sidebar: #282828;
+  --sidebar-foreground: #e8eaed;
+  --sidebar-primary: #89b4fa;
+  --sidebar-primary-foreground: #1f1f1f;
+  --sidebar-accent: #3c3c3c;
+  --sidebar-accent-foreground: #e8eaed;
+  --sidebar-border: #3c3c3c;
+  --sidebar-ring: #89b4fa;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* DevTools specific styles */
+.devtools-panel {
+  background: var(--devtools-bg);
+}
+
+.devtools-tabs {
+  background: var(--devtools-bg-toolbar);
+  border-bottom: 1px solid var(--devtools-border);
+}
+
+.devtools-tab {
+  position: relative;
+  padding: 4px 12px;
+  color: var(--devtools-text-secondary);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 12px;
+  font-weight: normal;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.1s;
+}
+
+.devtools-tab:hover {
+  color: var(--devtools-text);
+}
+
+.devtools-tab[data-state="active"] {
+  color: var(--devtools-accent);
+}
+
+.devtools-tab[data-state="active"]::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--devtools-accent);
+}
+
+/* Console row styles */
+.console-row {
+  padding: 3px 8px;
+  border-bottom: 1px solid var(--devtools-border);
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.console-row:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.console-row.error {
+  background: var(--devtools-error-bg);
+  border-left: 2px solid var(--devtools-error-border);
+}
+
+.console-row.error .console-message {
+  color: var(--devtools-error-text);
+}
+
+.console-row.warn {
+  background: var(--devtools-warn-bg);
+  border-left: 2px solid var(--devtools-warn-border);
+}
+
+.console-row.warn .console-message {
+  color: var(--devtools-warn-text);
+}
+
+.console-row.info .console-message {
+  color: var(--devtools-info-text);
+}
+
+.console-timestamp {
+  color: var(--devtools-text-secondary);
+  flex-shrink: 0;
+  font-size: 11px;
+}
+
+.console-message {
+  color: var(--devtools-log-text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  flex: 1;
+}
+
+/* Console input prompt */
+.console-prompt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: var(--devtools-bg);
+  border-top: 1px solid var(--devtools-border);
+}
+
+.console-prompt::before {
+  content: ">";
+  color: var(--devtools-accent);
+  font-weight: bold;
+}
+
+.console-prompt input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--devtools-text);
+  font-family: inherit;
+  font-size: 12px;
+  outline: none;
+}
+
+.console-prompt input::placeholder {
+  color: var(--devtools-text-secondary);
+}
+
+/* Network table */
+.network-header {
+  display: flex;
+  background: var(--devtools-bg-elevated);
+  border-bottom: 1px solid var(--devtools-border);
+  padding: 4px 8px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 11px;
+  color: var(--devtools-text-secondary);
+  font-weight: 500;
+}
+
+.network-row {
+  display: flex;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--devtools-border);
+  cursor: pointer;
+  align-items: center;
+}
+
+.network-row:hover {
+  background: var(--devtools-selection);
+}
+
+.network-col-method {
+  width: 50px;
+  flex-shrink: 0;
+  color: var(--devtools-text-secondary);
+}
+
+.network-col-status {
+  width: 45px;
+  flex-shrink: 0;
+}
+
+.network-col-time {
+  width: 60px;
+  flex-shrink: 0;
+  color: var(--devtools-text-secondary);
+  text-align: right;
+  padding-right: 12px;
+}
+
+.network-col-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.status-success {
+  color: var(--devtools-status-success);
+}
+
+.status-redirect {
+  color: var(--devtools-status-redirect);
+}
+
+.status-error {
+  color: var(--devtools-status-error);
+}
+
+.status-pending {
+  color: var(--devtools-text-secondary);
+}
+
+/* Network detail view */
+.network-detail-header {
+  padding: 8px 12px;
+  background: var(--devtools-bg-toolbar);
+  border-bottom: 1px solid var(--devtools-border);
+}
+
+.network-detail-section {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--devtools-border);
+}
+
+.network-detail-title {
+  color: var(--devtools-text);
+  font-weight: 500;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.network-detail-row {
+  display: flex;
+  padding: 2px 0;
+  font-size: 11px;
+}
+
+.network-detail-key {
+  color: var(--devtools-text-secondary);
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.network-detail-value {
+  color: var(--devtools-text);
+  word-break: break-all;
+}
+
+/* Toolbar button */
+.toolbar-btn {
+  padding: 4px 8px;
+  color: var(--devtools-text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 11px;
+  border-radius: 0;
+}
+
+.toolbar-btn:hover {
+  color: var(--devtools-text);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Empty state */
+.empty-state {
+  color: var(--devtools-text-secondary);
+  padding: 16px;
+  font-size: 12px;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--devtools-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #5a5a5a;
+  border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6a6a6a;
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--devtools-bg);
 }

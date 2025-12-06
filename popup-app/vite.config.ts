@@ -6,6 +6,11 @@ import { defineConfig } from "vite"
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   base: "./",
+  resolve: {
+    alias: {
+      "@": resolve(__dirname, "./src"),
+    },
+  },
   build: {
     outDir: resolve(__dirname, "../devtools Extension/Resources"),
     emptyOutDir: false,

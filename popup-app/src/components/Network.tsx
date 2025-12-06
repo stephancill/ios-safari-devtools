@@ -1,5 +1,6 @@
+import { ArrowLeft } from "lucide-react"
 import { useState } from "react"
-import type { NetworkEntry } from "../types"
+import type { NetworkEntry } from "@/types"
 
 interface NetworkProps {
   requests: NetworkEntry[]
@@ -8,17 +9,19 @@ interface NetworkProps {
 export function Network({ requests }: NetworkProps) {
   const [selected, setSelected] = useState<NetworkEntry | null>(null)
 
-  const getStatusColor = (status?: number) => {
-    if (!status) return "text-gray-500"
-    if (status >= 200 && status < 300) return "text-green-500"
-    if (status >= 300 && status < 400) return "text-blue-500"
-    if (status >= 400) return "text-red-500"
+  const getStatusClass = (status?: number) => {
+    if (!status) return "status-pending"
+    if (status >= 200 && status < 300) return "status-success"
+    if (status >= 300 && status < 400) return "status-redirect"
+    if (status >= 400) return "status-error"
     return ""
   }
 
   const formatDuration = (entry: NetworkEntry) => {
-    if (!entry.endTime) return "..."
-    return `${entry.endTime - entry.startTime}ms`
+    if (!entry.endTime) return "pending"
+    const ms = entry.endTime - entry.startTime
+    if (ms < 1000) return `${ms}ms`
+    return `${(ms / 1000).toFixed(2)}s`
   }
 
   const formatBody = (body: string | null | undefined) => {
@@ -31,121 +34,150 @@ export function Network({ requests }: NetworkProps) {
     }
   }
 
+  const getUrlName = (url: string) => {
+    try {
+      const u = new URL(url)
+      return u.pathname + u.search
+    } catch {
+      return url
+    }
+  }
+
   if (selected) {
     return (
-      <div className="h-full overflow-auto text-xs">
-        <div className="p-2 border-b border-gray-700">
+      <div className="devtools-panel h-full overflow-auto">
+        <div className="network-detail-header">
           <button
             type="button"
+            className="toolbar-btn flex items-center gap-1"
             onClick={() => setSelected(null)}
-            className="text-blue-400"
           >
-            ← Back
+            <ArrowLeft size={14} />
+            Back
           </button>
         </div>
-        <div className="p-2 space-y-3">
-          <div>
-            <div className="text-gray-500 mb-1">General</div>
-            <div>
-              <span className="text-gray-500">URL: </span>
-              <span className="break-all">{selected.url}</span>
-            </div>
-            <div>
-              <span className="text-gray-500">Method: </span>
-              {selected.method}
-            </div>
-            <div>
-              <span className="text-gray-500">Status: </span>
-              <span className={getStatusColor(selected.status)}>
-                {selected.status} {selected.statusText}
-              </span>
-            </div>
-            <div>
-              <span className="text-gray-500">Duration: </span>
-              {formatDuration(selected)}
-            </div>
-            {selected.error && (
-              <div className="text-red-500">Error: {selected.error}</div>
-            )}
+
+        <div className="network-detail-section">
+          <div className="network-detail-title">General</div>
+          <div className="network-detail-row">
+            <span className="network-detail-key">Request URL:</span>
+            <span className="network-detail-value">{selected.url}</span>
           </div>
-
-          {selected.requestHeaders &&
-            Object.keys(selected.requestHeaders).length > 0 && (
-              <div>
-                <div className="text-gray-500 mb-1">Request Headers</div>
-                {Object.entries(selected.requestHeaders).map(([k, v]) => (
-                  <div key={k} className="break-all">
-                    <span className="text-gray-500">{k}: </span>
-                    {v}
-                  </div>
-                ))}
-              </div>
-            )}
-
-          {selected.requestBody && (
-            <div>
-              <div className="text-gray-500 mb-1">Request Body</div>
-              <pre className="whitespace-pre-wrap break-all">
-                {formatBody(selected.requestBody)}
-              </pre>
-            </div>
-          )}
-
-          {selected.responseHeaders &&
-            Object.keys(selected.responseHeaders).length > 0 && (
-              <div>
-                <div className="text-gray-500 mb-1">Response Headers</div>
-                {Object.entries(selected.responseHeaders).map(([k, v]) => (
-                  <div key={k} className="break-all">
-                    <span className="text-gray-500">{k}: </span>
-                    {v}
-                  </div>
-                ))}
-              </div>
-            )}
-
-          {selected.responseBody && (
-            <div>
-              <div className="text-gray-500 mb-1">Response Body</div>
-              <pre className="whitespace-pre-wrap break-all">
-                {formatBody(selected.responseBody)}
-              </pre>
+          <div className="network-detail-row">
+            <span className="network-detail-key">Request Method:</span>
+            <span className="network-detail-value">{selected.method}</span>
+          </div>
+          <div className="network-detail-row">
+            <span className="network-detail-key">Status Code:</span>
+            <span
+              className={`network-detail-value ${getStatusClass(selected.status)}`}
+            >
+              {selected.status} {selected.statusText}
+            </span>
+          </div>
+          <div className="network-detail-row">
+            <span className="network-detail-key">Duration:</span>
+            <span className="network-detail-value">
+              {formatDuration(selected)}
+            </span>
+          </div>
+          {selected.error && (
+            <div className="network-detail-row">
+              <span className="network-detail-key">Error:</span>
+              <span className="network-detail-value status-error">
+                {selected.error}
+              </span>
             </div>
           )}
         </div>
+
+        {selected.requestHeaders &&
+          Object.keys(selected.requestHeaders).length > 0 && (
+            <div className="network-detail-section">
+              <div className="network-detail-title">Request Headers</div>
+              {Object.entries(selected.requestHeaders).map(([k, v]) => (
+                <div key={k} className="network-detail-row">
+                  <span className="network-detail-key">{k}:</span>
+                  <span className="network-detail-value">{v}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+        {selected.requestBody && (
+          <div className="network-detail-section">
+            <div className="network-detail-title">Request Payload</div>
+            <pre className="network-detail-value whitespace-pre-wrap break-all text-[11px]">
+              {formatBody(selected.requestBody)}
+            </pre>
+          </div>
+        )}
+
+        {selected.responseHeaders &&
+          Object.keys(selected.responseHeaders).length > 0 && (
+            <div className="network-detail-section">
+              <div className="network-detail-title">Response Headers</div>
+              {Object.entries(selected.responseHeaders).map(([k, v]) => (
+                <div key={k} className="network-detail-row">
+                  <span className="network-detail-key">{k}:</span>
+                  <span className="network-detail-value">{v}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+        {selected.responseBody && (
+          <div className="network-detail-section">
+            <div className="network-detail-title">Response</div>
+            <pre className="network-detail-value whitespace-pre-wrap break-all text-[11px]">
+              {formatBody(selected.responseBody)}
+            </pre>
+          </div>
+        )}
       </div>
     )
   }
 
   return (
-    <div className="h-full overflow-auto p-2 text-xs">
-      {requests.length === 0 ? (
-        <div className="text-gray-500">No network requests yet</div>
-      ) : (
-        <div className="space-y-1">
-          {requests.map((req) => (
+    <div className="devtools-panel h-full flex flex-col">
+      {/* Table header */}
+      <div className="network-header">
+        <span className="network-col-method">Method</span>
+        <span className="network-col-status">Status</span>
+        <span className="network-col-time">Time</span>
+        <span className="network-col-name">Name</span>
+      </div>
+
+      {/* Table body */}
+      <div className="flex-1 overflow-auto">
+        {requests.length === 0 ? (
+          <div className="empty-state">Recording network activity...</div>
+        ) : (
+          requests.map((req) => (
             <button
               type="button"
               key={req.id}
               onClick={() => setSelected(req)}
-              className="flex gap-2 cursor-pointer hover:bg-gray-800 p-1 -m-1 rounded w-full text-left"
+              className="network-row w-full text-left"
             >
-              <span className="w-12 text-gray-500">{req.method}</span>
-              <span className={`w-10 ${getStatusColor(req.status)}`}>
+              <span className="network-col-method">{req.method}</span>
+              <span
+                className={`network-col-status ${getStatusClass(req.status)}`}
+              >
                 {req.status ?? "..."}
               </span>
-              <span className="w-14 text-gray-500">{formatDuration(req)}</span>
-              <span className="flex-1 truncate">
+              <span className="network-col-time">{formatDuration(req)}</span>
+              <span className="network-col-name">
                 {req.error ? (
-                  <span className="text-red-500">{req.error}</span>
+                  <span className="status-error">{req.error}</span>
                 ) : (
-                  req.url
+                  getUrlName(req.url)
                 )}
               </span>
             </button>
-          ))}
-        </div>
-      )}
+          ))
+        )}
+      </div>
     </div>
   )
 }

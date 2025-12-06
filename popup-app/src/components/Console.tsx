@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import type { LogEntry } from "../types"
+import type { LogEntry } from "@/types"
 
 interface ConsoleProps {
   logs: LogEntry[]
@@ -19,9 +19,10 @@ export function Console({ logs, onExecute }: ConsoleProps) {
   const [input, setInput] = useState("")
   const logsEndRef = useRef<HTMLDivElement>(null)
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: scroll when logs change
   useEffect(() => {
     logsEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [])
+  }, [logs.length])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInput(sanitizeCode(e.target.value))
@@ -35,16 +36,16 @@ export function Console({ logs, onExecute }: ConsoleProps) {
     }
   }
 
-  const getLogColor = (type: LogEntry["type"]) => {
+  const getRowClass = (type: LogEntry["type"]) => {
     switch (type) {
       case "error":
-        return "text-red-500"
+        return "console-row error"
       case "warn":
-        return "text-yellow-500"
+        return "console-row warn"
       case "info":
-        return "text-blue-500"
+        return "console-row info"
       default:
-        return ""
+        return "console-row"
     }
   }
 
@@ -61,18 +62,28 @@ export function Console({ logs, onExecute }: ConsoleProps) {
     return String(arg)
   }
 
+  const formatTime = (timestamp: number) => {
+    const date = new Date(timestamp)
+    return date.toLocaleTimeString("en-US", {
+      hour12: false,
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    })
+  }
+
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-auto p-2 text-xs select-text">
+    <div className="devtools-panel flex flex-col h-full">
+      <div className="flex-1 overflow-auto select-text">
         {logs.length === 0 ? (
-          <div className="text-gray-500">No logs yet</div>
+          <div className="empty-state">No logs yet</div>
         ) : (
           logs.map((log) => (
-            <div key={log.id} className={`mb-1 ${getLogColor(log.type)}`}>
-              <span className="text-gray-500 mr-2">
-                {new Date(log.timestamp).toLocaleTimeString()}
+            <div key={log.id} className={getRowClass(log.type)}>
+              <span className="console-timestamp">
+                {formatTime(log.timestamp)}
               </span>
-              <span className="whitespace-pre-wrap">
+              <span className="console-message">
                 {log.args.map(formatArg).join(" ")}
               </span>
             </div>
@@ -80,23 +91,16 @@ export function Console({ logs, onExecute }: ConsoleProps) {
         )}
         <div ref={logsEndRef} />
       </div>
-      <form onSubmit={handleSubmit} className="p-2 border-t border-gray-700">
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={input}
-            onChange={handleChange}
-            placeholder="Enter JavaScript..."
-            className="flex-1 bg-transparent outline-none text-sm"
-            autoComplete="off"
-            autoCapitalize="off"
-            autoCorrect="off"
-            spellCheck={false}
-          />
-          <button type="submit" className="text-sm px-2">
-            Run
-          </button>
-        </div>
+      <form onSubmit={handleSubmit} className="console-prompt">
+        <input
+          type="text"
+          value={input}
+          onChange={handleChange}
+          autoComplete="off"
+          autoCapitalize="off"
+          autoCorrect="off"
+          spellCheck={false}
+        />
       </form>
     </div>
   )

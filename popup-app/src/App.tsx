@@ -1,12 +1,11 @@
+import { Ban } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
-import { Console } from "./components/Console"
-import { Network } from "./components/Network"
-import type { LogEntry, NetworkEntry } from "./types"
-
-type Tab = "console" | "network"
+import { Console } from "@/components/Console"
+import { Network } from "@/components/Network"
+import type { LogEntry, NetworkEntry } from "@/types"
 
 function App() {
-  const [tab, setTab] = useState<Tab>("console")
+  const [tab, setTab] = useState<string>("console")
   const [logs, setLogs] = useState<LogEntry[]>([])
   const [requests, setRequests] = useState<NetworkEntry[]>([])
 
@@ -71,30 +70,38 @@ function App() {
   }
 
   return (
-    <div className="w-full h-screen flex flex-col text-sm">
-      <div className="flex border-b border-gray-700">
+    <div className="devtools-panel w-full h-screen flex flex-col">
+      {/* DevTools toolbar */}
+      <div className="devtools-tabs flex items-center">
+        <div className="flex">
+          <button
+            type="button"
+            className="devtools-tab"
+            data-state={tab === "console" ? "active" : "inactive"}
+            onClick={() => setTab("console")}
+          >
+            Console
+          </button>
+          <button
+            type="button"
+            className="devtools-tab"
+            data-state={tab === "network" ? "active" : "inactive"}
+            onClick={() => setTab("network")}
+          >
+            Network
+          </button>
+        </div>
+        <div className="flex-1" />
         <button
           type="button"
-          onClick={() => setTab("console")}
-          className={`flex-1 py-1 ${tab === "console" ? "bg-gray-800" : ""}`}
-        >
-          Console
-        </button>
-        <button
-          type="button"
-          onClick={() => setTab("network")}
-          className={`flex-1 py-1 ${tab === "network" ? "bg-gray-800" : ""}`}
-        >
-          Network
-        </button>
-        <button
-          type="button"
+          className="toolbar-btn flex items-center gap-1"
           onClick={handleClear}
-          className="px-2 text-gray-500"
         >
-          Clear
+          <Ban size={14} />
         </button>
       </div>
+
+      {/* Content area */}
       <div className="flex-1 overflow-hidden">
         {tab === "console" ? (
           <Console logs={logs} onExecute={handleExecute} />
