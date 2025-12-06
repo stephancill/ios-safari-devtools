@@ -171,35 +171,85 @@ struct NetworkListView: View {
     let tabId: Int
     
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
     @State private var requests: [NetworkLog] = []
+    @State private var selectedRequest: NetworkLog?
+    @State private var searchText = ""
+    @State private var isLoading = false
+    
+    var filteredRequests: [NetworkLog] {
+        if searchText.isEmpty {
+            return requests
+        }
+        return requests.filter { $0.url.localizedCaseInsensitiveContains(searchText) }
+    }
     
     var body: some View {
         Group {
-            if requests.isEmpty {
+            if isLoading && requests.isEmpty {
+                ProgressView("Loading...")
+            } else if requests.isEmpty {
                 ContentUnavailableView(
                     "No Network Requests",
                     systemImage: "network",
                     description: Text("Network requests will appear here.")
                 )
+            } else if filteredRequests.isEmpty {
+                ContentUnavailableView.search(text: searchText)
             } else {
-                Text("Has \(requests.count) requests")
+                // Full feature set matching ConsoleView
+                List(filteredRequests) { request in
+                    Button {
+                        selectedRequest = request
+                    } label: {
+                        NetworkRow(request: request)
+                    }
+                    .buttonStyle(.plain)
+                }
+                .listStyle(.plain)
+                .defaultScrollAnchor(.bottom)
             }
         }
-        .onAppear {
-            fetchRequests()
+        .searchable(text: $searchText, prompt: "Filter requests")
+        .task(id: tabId) {
+            await fetchRequests()
+        }
+        .refreshable {
+            await fetchRequests()
+        }
+        .sheet(item: $selectedRequest) { request in
+            NetworkDetailView(request: request)
         }
     }
     
-    private func fetchRequests() {
+    private func fetchRequests() async {
+        // Don't fetch if app is not active to avoid watchdog timeout
+        guard scenePhase == .active else { return }
+        
+        isLoading = true
+        defer { isLoading = false }
+        
+        // Check for cancellation before starting
+        guard !Task.isCancelled else { return }
+        
+        // Yield to allow UI to update and check for cancellation
+        await Task.yield()
+        guard !Task.isCancelled else { return }
+        
         let targetTabId = tabId
         var descriptor = FetchDescriptor<NetworkLog>(
             predicate: #Predicate { $0.tabId == targetTabId },
             sortBy: [SortDescriptor(\.startTime, order: .reverse)]
         )
-        descriptor.fetchLimit = 50
+        descriptor.fetchLimit = 200
         
         do {
-            requests = try modelContext.fetch(descriptor)
+            let fetchedRequests = try modelContext.fetch(descriptor)
+            
+            // Check for cancellation after fetch
+            guard !Task.isCancelled else { return }
+            
+            requests = fetchedRequests
         } catch {
             requests = []
         }
