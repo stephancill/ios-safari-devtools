@@ -68,44 +68,11 @@ devtools/
 
 ## Xcode Setup (Required)
 
-### 1. Add Shared Files to Both Targets
-
-In Xcode, add the files in `Shared/` to both the `devtools` and `devtools Extension` targets:
-
-- `Shared/Settings.swift`
-- `Shared/DebugLog.swift`
-- `Shared/NetworkLog.swift`
-
-### 2. Configure App Groups
+### Configure App Groups
 
 1. Select the `devtools` target → Signing & Capabilities → + Capability → App Groups
 2. Add: `group.co.za.stephancill.devtools`
 3. Repeat for the `devtools Extension` target with the same group name
-
-### 3. Update Deployment Target
-
-1. Select the project in the navigator
-2. Set iOS Deployment Target to 17.0 for both targets
-
-### 4. Add New Swift Files to Target
-
-Add these new files to the `devtools` target:
-
-- `devtools/DevToolsApp.swift`
-- `devtools/ContentView.swift`
-- `devtools/SetupView.swift`
-- `devtools/DebugView.swift`
-- `devtools/NetworkView.swift`
-- `devtools/SettingsView.swift`
-
-### 5. Remove Deleted Files from Project
-
-Remove these files from the Xcode project (they've been deleted from disk):
-
-- `devtools/AppDelegate.swift`
-- `devtools/SceneDelegate.swift`
-- `devtools/ViewController.swift`
-- `devtools/Base.lproj/Main.storyboard`
 
 ## Development
 
