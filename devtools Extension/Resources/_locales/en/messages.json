@@ -4,7 +4,7 @@
         "description": "The display name for the extension."
     },
     "extension_description": {
-        "message": "Developer console for Safari on iOS - view console logs, network requests, and execute JavaScript.",
+        "message": "Browser developer tools for mobile: debug any page with a console, network inspector.",
         "description": "Description of what the extension does."
     }
 }
